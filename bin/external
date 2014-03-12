@@ -1,0 +1,61 @@
+#!/bin/bash -eu
+# Copyright 2014 mbr targeting GmbH. All Rights Reserved.
+
+if hash gmktemp 2>/dev/null;
+then
+    MKTEMP="gmktemp"
+else
+    MKTEMP="mktemp"
+fi
+
+if hash gtouch 2>/dev/null;
+then
+    TOUCH="gtouch"
+else
+    TOUCH="touch"
+fi
+
+BUILD=`${MKTEMP} -d`
+trap 'rm -rf $BUILD' EXIT
+
+if git diff-index --quiet --cached HEAD
+then
+    HASH=HEAD
+else
+    HASH=`git stash create`^2
+fi
+
+git archive $HASH | tar xC $BUILD
+
+ROOT=`git rev-parse --show-toplevel`
+
+LINK_DIRS=(
+    node_modules
+    public/node_modules
+    public/app/components
+)
+
+for DIR in "${LINK_DIRS[@]}"
+do
+    if [[ -d $ROOT/$DIR ]]
+    then
+        ln -s $ROOT/$DIR $BUILD/`dirname $DIR`
+    fi
+done
+
+TOUCH_FILES=(
+    package.json
+    public/package.json
+    public/bower.json
+)
+
+for FILE in "${TOUCH_FILES[@]}"
+do
+    if [[ -f $BUILD/$FILE ]]
+    then
+        $TOUCH -d @0 $BUILD/$FILE
+    fi
+done
+
+cd $BUILD
+"$@"
