@@ -6,9 +6,7 @@ committing.
 To try it out clone this repository and then do:
 
 ```sh
-cd .git/hooks
-ln -s ../../bin/pre-commit
-cd ../../
+bin/config-git
 ```
 
 Presented by [@ctavan](https://github.com/ctavan) at the [Berlin node.js Meetup #3, March
