@@ -1,0 +1,14 @@
+#!/bin/sh
+
+ln -snf ../../bin/pre-commit .git/hooks/
+
+read -p "user.name : " NAME
+read -p "user.email: " EMAIL
+
+git config push.default           current
+git config branch.autosetuprebase always
+git config interactive.singlekey  true
+git config color.ui               auto
+git config rebase.autosquash      true
+git config user.name              "$NAME"
+git config user.email             "$EMAIL"
